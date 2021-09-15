@@ -180,7 +180,7 @@ class Crossword {
 
     private void findWord(int slotIndex) {
         this.findWordCount++;
-        if (this.findWordCount % 100000 == 0) {
+        if (this.findWordCount % 1000000 == 0) {
             this.printBoard(false);
         }
         if (this.solutionFound()) {
