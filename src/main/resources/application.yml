@@ -1,3 +1,7 @@
 server:
   servlet:
     context-path: /playground/api
+
+logging:
+  level:
+    com.lz.playground: DEBUG
