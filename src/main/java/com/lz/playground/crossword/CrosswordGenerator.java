@@ -23,8 +23,8 @@ class CrosswordGenerator {
         this.dictionaryFactory = dictionaryFactory;
     }
 
-    Crossword run() {
-        String[][] board = this.boardFactory.getBoard();
+    Crossword run(Integer boardId) {
+        String[][] board = this.boardFactory.getBoard(boardId).definition();
         LOGGER.info("Board size: {} x {}", board.length, board[0].length);
 
         String[] dictionary = this.dictionaryFactory.getDictionary();
