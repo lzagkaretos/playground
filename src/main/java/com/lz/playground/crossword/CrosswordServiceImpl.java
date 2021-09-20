@@ -7,6 +7,7 @@ import com.lz.playground.crossword.api.WordSlotDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StopWatch;
 
 import java.util.List;
 
@@ -32,13 +33,16 @@ class CrosswordServiceImpl implements CrosswordService {
     @Override
     public CrosswordDto generateCrossword(GenerateCrosswordDto generateCrossword) {
         LOGGER.debug("Generate crossword started");
+        StopWatch timeMeasure = new StopWatch();
+        timeMeasure.start("Crossword Generation");
         Crossword crossword = this.crosswordGenerator.run(generateCrossword.boardId());
-        LOGGER.debug("Generate crossword completed");
+        timeMeasure.stop();
+        LOGGER.debug("Generate crossword completed in {} milliseconds", timeMeasure.getLastTaskTimeMillis());
         return new CrosswordDto(crossword.getEmptyBoard(),
                 crossword.getBoard(),
                 crossword.getWordSlots().stream()
                         .map(ws -> new WordSlotDto(ws.getStartX(), ws.getStartY(), ws.getLength(), ws.getDirection().name(), ws.getWord())).toList(),
-                crossword.getFindWordCount());
+                crossword.getFindWordCount(), timeMeasure.getLastTaskTimeMillis());
     }
 
 }
