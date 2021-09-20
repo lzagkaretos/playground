@@ -178,15 +178,16 @@ class Crossword {
         }
     }
 
-    private void findWord(int slotIndex) {
-        this.findWordCount++;
-        if (this.findWordCount % 1000000 == 0) {
-            this.printBoard(false);
-        }
+    private boolean findWord(int slotIndex) {
         if (this.solutionFound()) {
             LOGGER.debug("Solution found");
             this.printBoard(false);
-            throw new SolutionFound();
+            return true;
+        }
+
+        this.findWordCount++;
+        if (this.findWordCount % 1000000 == 0) {
+            this.printBoard(false);
         }
 
         WordSlot wordSlot = this.wordSlots.get(slotIndex);
@@ -206,12 +207,16 @@ class Crossword {
                 wordSlot.setWord(candidateWords.get(i));
                 this.updateWordSlotsOnBoard();
                 // move to next word slot
-                this.findWord(slotIndex + 1);
-                // backtrack
-                wordSlot.setWord(null);
-                this.updateWordSlotsOnBoard();
+                if (this.findWord(slotIndex + 1)) {
+                    return true;
+                } else {
+                    // backtrack
+                    wordSlot.setWord(null);
+                    this.updateWordSlotsOnBoard();
+                }
             }
         }
+        return false;
     }
 
     private void printBoard(boolean showIds) {
