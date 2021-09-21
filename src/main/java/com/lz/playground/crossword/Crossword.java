@@ -10,27 +10,27 @@ class Crossword {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Crossword.class);
 
-    private String[][] emptyBoard;
-    private String[][] board;
+    private char[][] emptyBoard;
+    private char[][] board;
     private List<WordSlot> wordSlots;
     private List<WordSlot> sortedWordSlots;
     private String[] dictionary;
     private Map<Integer, List<String>> dictionaryMap;
     private int findWordCount = 0;
 
-    public Crossword(String[][] board) {
-        this.emptyBoard = Arrays.stream(board).map(String[]::clone).toArray(String[][]::new);
-        this.board = Arrays.stream(board).map(String[]::clone).toArray(String[][]::new);
+    public Crossword(char[][] board) {
+        this.emptyBoard = Arrays.stream(board).map(char[]::clone).toArray(char[][]::new);
+        this.board = Arrays.stream(board).map(char[]::clone).toArray(char[][]::new);
         this.wordSlots = initWordSlots(this.board);
         this.sortedWordSlots = new ArrayList<>();
         this.sortWordSlotsMain();
     }
 
-    public String[][] getEmptyBoard() {
+    public char[][] getEmptyBoard() {
         return emptyBoard;
     }
 
-    public String[][] getBoard() {
+    public char[][] getBoard() {
         return board;
     }
 
@@ -55,20 +55,20 @@ class Crossword {
      * @param board
      * @return
      */
-    private List<WordSlot> initWordSlots(String[][] board) {
+    private List<WordSlot> initWordSlots(char[][] board) {
         final List<WordSlot> wordSlots = new ArrayList<>();
         int slotId = 0, startX = 0, startY = 0, length = 0;
 
         // horizontal process
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                if (board[i][j].equals("-")) {
+                if (board[i][j] == '-') {
                     if (startX == 0 && length == 0) {
                         startX = i;
                         startY = j;
                     }
                     length = length + 1;
-                } else if (board[i][j].equals("#")) {
+                } else if (board[i][j] == '#') {
                     if (length > 1) {
                         wordSlots.add(new WordSlot(++slotId, startX, startY, length, Direction.HORIZONTAL));
                         startX = 0;
@@ -99,13 +99,13 @@ class Crossword {
         // vertical process
         for (int j = 0; j < board[0].length; j++) {
             for (int i = 0; i < board.length; i++) {
-                if (board[i][j].equals("-")) {
+                if (board[i][j] == '-') {
                     if (startY == 0 && length == 0) {
                         startX = i;
                         startY = j;
                     }
                     length = length + 1;
-                } else if (board[i][j].equals("#")) {
+                } else if (board[i][j] == '#') {
                     if (length > 1) {
                         wordSlots.add(new WordSlot(++slotId, startX, startY, length, Direction.VERTICAL));
                         startX = 0;
@@ -198,7 +198,7 @@ class Crossword {
         List<IntersectionPoint> intersectionPoints = computeIntersectionPoints(wordSlot);
         for (IntersectionPoint ip : intersectionPoints) {
             candidateWords = candidateWords.stream().filter(cw ->
-                    String.valueOf(cw.charAt(ip.getIndex())).equals(ip.getCharacter())).collect(Collectors.toList());
+                    cw.charAt(ip.getIndex()) == ip.getCharacter()).collect(Collectors.toList());
         }
 
         for (int i = 0; i < candidateWords.size(); i++) {
@@ -251,15 +251,15 @@ class Crossword {
         List<IntersectionPoint> intersectionPoints = new ArrayList<>();
         if (wordSlot.getDirection() == Direction.HORIZONTAL) {
             for (int i = 0; i < wordSlot.getLength(); i++) {
-                if (!this.board[wordSlot.getStartX()][wordSlot.getStartY() + i].equals("-") &&
-                        !this.board[wordSlot.getStartX()][wordSlot.getStartY() + i].equals("#")) {
+                if (this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] != '-' &&
+                        this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] != '#') {
                     intersectionPoints.add(new IntersectionPoint(i, this.board[wordSlot.getStartX()][wordSlot.getStartY() + i]));
                 }
             }
         } else {
             for (int i = 0; i < wordSlot.getLength(); i++) {
-                if (!this.board[wordSlot.getStartX() + i][wordSlot.getStartY()].equals("-") &&
-                        !this.board[wordSlot.getStartX() + i][wordSlot.getStartY()].equals("#")) {
+                if (this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] != '-' &&
+                        this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] != '#') {
                     intersectionPoints.add(new IntersectionPoint(i, this.board[wordSlot.getStartX() + i][wordSlot.getStartY()]));
                 }
             }
@@ -281,15 +281,15 @@ class Crossword {
         // if does not fit with current board state
         if (wordSlot.getDirection() == Direction.HORIZONTAL) {
             for (int i = 0; i < wordSlot.getLength(); i++) {
-                if (this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] != "-" &&
-                        !this.board[wordSlot.getStartX()][wordSlot.getStartY() + i].equals(String.valueOf(currentWord.charAt(i)))) {
+                if (this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] != '-' &&
+                        this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] != currentWord.charAt(i)) {
                     return false;
                 }
             }
         } else {
             for (int i = 0; i < wordSlot.getLength(); i++) {
-                if (this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] != "-" &&
-                        !this.board[wordSlot.getStartX() + i][wordSlot.getStartY()].equals(String.valueOf(currentWord.charAt(i)))) {
+                if (this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] != '-' &&
+                        this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] != currentWord.charAt(i)) {
                     return false;
                 }
             }
@@ -298,18 +298,16 @@ class Crossword {
     }
 
     private void updateWordSlotsOnBoard() {
-        this.board = Arrays.stream(this.emptyBoard).map(String[]::clone).toArray(String[][]::new);
+        this.board = Arrays.stream(this.emptyBoard).map(char[]::clone).toArray(char[][]::new);
         this.wordSlots.stream().filter(wordSlot -> wordSlot.getWord() != null).forEach(
                 wordSlot -> {
                     if (wordSlot.getDirection() == Direction.HORIZONTAL) {
                         for (int i = 0; i < wordSlot.getLength(); i++) {
-                            this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] =
-                                    String.valueOf(wordSlot.getWord().charAt(i));
+                            this.board[wordSlot.getStartX()][wordSlot.getStartY() + i] = wordSlot.getWord().charAt(i);
                         }
                     } else {
                         for (int i = 0; i < wordSlot.getLength(); i++) {
-                            this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] =
-                                    String.valueOf(wordSlot.getWord().charAt(i));
+                            this.board[wordSlot.getStartX() + i][wordSlot.getStartY()] = wordSlot.getWord().charAt(i);
                         }
                     }
                 }
@@ -318,9 +316,9 @@ class Crossword {
 
     private class IntersectionPoint {
         private int index;
-        private String character;
+        private char character;
 
-        public IntersectionPoint(int index, String character) {
+        public IntersectionPoint(int index, char character) {
             this.index = index;
             this.character = character;
         }
@@ -329,7 +327,7 @@ class Crossword {
             return index;
         }
 
-        public String getCharacter() {
+        public char getCharacter() {
             return character;
         }
     }

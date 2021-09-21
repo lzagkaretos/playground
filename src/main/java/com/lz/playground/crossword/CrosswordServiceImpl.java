@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 class CrosswordServiceImpl implements CrosswordService {
@@ -38,7 +39,7 @@ class CrosswordServiceImpl implements CrosswordService {
         Crossword crossword = this.crosswordGenerator.run(generateCrossword.boardId());
         timeMeasure.stop();
         LOGGER.debug("Generate crossword completed in {} milliseconds", timeMeasure.getLastTaskTimeMillis());
-        return new CrosswordDto(crossword.getEmptyBoard(),
+        return new CrosswordDto(UUID.randomUUID().toString(), crossword.getEmptyBoard(),
                 crossword.getBoard(),
                 crossword.getWordSlots().stream()
                         .map(ws -> new WordSlotDto(ws.getStartX(), ws.getStartY(), ws.getLength(), ws.getDirection().name(), ws.getWord())).toList(),
